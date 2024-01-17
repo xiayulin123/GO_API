@@ -42,6 +42,26 @@ func getToolById(id string) (*tool, error) {
 	return nil, errors.New("No tool is found by id")
 }
 
+func buyTool(c *gin.Context) {
+	id, found := c.GetQuery("id")
+	if found == false {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "no such product"})
+		return
+	}
+	tool, err := getToolById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "no such product"})
+		return
+	}
+	if tool.Quantity < 1 {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "product sold out"})
+		return
+	}
+	tool.Quantity--
+	c.IndentedJSON(http.StatusOK, tool)
+
+}
+
 func newTools(c *gin.Context) {
 	var newTool tool
 	if err := c.BindJSON(&newTool); err != nil {
@@ -55,7 +75,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/tools", getTools)
 	router.GET("/tools/:id", toolById)
-
+	router.PATCH("/buy", buyTool)
 	router.POST("/tools", newTools)
 	router.Run("localhost:8080")
 
