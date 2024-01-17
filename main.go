@@ -25,7 +25,7 @@ func getTools(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
-	router.GET("/books", getTools)
+	router.GET("/tools", getTools)
 	router.Run("localhost:8080")
 
 }
