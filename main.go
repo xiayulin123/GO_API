@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,24 @@ var tools = []tool{
 func getTools(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, tools)
 }
+func toolById(c *gin.Context) {
+	id := c.Param("id")
+	tool, err := getToolById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "no such id for tool"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, tool)
+}
+func getToolById(id string) (*tool, error) {
+	for i, k := range tools {
+		if k.ID == id {
+			return &tools[i], nil
+		}
+	}
+
+	return nil, errors.New("No tool is found by id")
+}
 
 func newTools(c *gin.Context) {
 	var newTool tool
@@ -35,6 +54,8 @@ func newTools(c *gin.Context) {
 func main() {
 	router := gin.Default()
 	router.GET("/tools", getTools)
+	router.GET("/tools/:id", toolById)
+
 	router.POST("/tools", newTools)
 	router.Run("localhost:8080")
 
