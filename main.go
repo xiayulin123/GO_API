@@ -23,12 +23,19 @@ func getTools(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, tools)
 }
 
-func addTools(c *gin.Context) {
-	var newBook tool
+func newTools(c *gin.Context) {
+	var newTool tool
+	if err := c.BindJSON(&newTool); err != nil {
+		return
+	}
+
+	tools = append(tools, newTool)
+	c.IndentedJSON(http.StatusCreated, newTool)
 }
 func main() {
 	router := gin.Default()
 	router.GET("/tools", getTools)
 	router.Run("localhost:8080")
+	router.POST("/tools", newTools)
 
 }
